@@ -25,7 +25,98 @@
     <div id="map"></div>
 
     <script src="js/jquery-3.1.1.min.js"></script>
-    <script src="js/citidots.js"></script>
+    <script>
+    var filename = 'data/data.json';
+    var bikes;
+    $.getJSON(filename, function(json) {
+        bikes = json;
+    });
+
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
+            center: {lat: 40.719517, lng: -73.982786},
+            mapTypeId: 'terrain'
+        });
+
+        var activeBikes = [];
+        var ticks = 2000;
+
+        window.setInterval(function(){
+
+            for (var bikeid in bikes){
+                if (bikes[bikeid].starttime == ticks){
+                    activeBikes.push( new google.maps.Circle({
+                        strokeColor: 'red',//'#39A2E1',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: 'red',
+                        fillOpacity: 1,
+                        map: map,
+                        center: {lat: bikes[bikeid].startLoc[0], lng: bikes[bikeid].startLoc[1]},
+                        radius: 20,
+                        startLoc: {lat: bikes[bikeid].startLoc[0], lng: bikes[bikeid].startLoc[1]},
+                        endLoc: {lat: bikes[bikeid].endLoc[0], lng: bikes[bikeid].endLoc[1]},
+                        angle: 29*(Math.PI / 180),
+                        v: 0.0001,
+                        hasTurned: false,
+                    }));
+                }
+            }
+
+            activeBikes.forEach(function(bike) {
+                var sX = bike.startLoc['lng'];
+                var sY = bike.startLoc['lat'];
+                var eX = bike.endLoc['lng'];
+                var eY = bike.endLoc['lat'];
+
+                var d = Math.sqrt(Math.pow((eX-sX),2) + Math.pow((eY-sY), 2));
+                var p = bike.getCenter();
+                var m = p.lng() + bike.v*(Math.sin(bike.angle));
+                var g = p.lat() + bike.v*(Math.cos(bike.angle));
+
+                // subtracts turning point and starting point's y-distance from ending point and starting point's y-distance
+                var x = d * ( Math.sin(Math.atan((eY-sY)/(eX-sX))) - Math.sin( Math.PI/2 - bike.angle ));
+
+                var north = eY > sY;
+                var south = !north;
+                var east = eX > sX;
+                var west = !east;
+
+                if (north && east) {
+                    if (bike.hasTurned && p.lng() > eX) {
+                        activeBikes.splice(activeBikes.indexOf(bike),1);
+                    }
+                    if (!bike.hasTurned && p.lat() > eY + x) {
+                        bike.angle += 82*Math.PI/180;
+                        bike.hasTurned = true;
+                    }
+                }
+
+                if (north && west) {
+                    bike.radius = 100;
+                    if (bike.hasTurned && p.lat() > eY) {
+                        activeBikes.splice(activeBikes.indexOf(bike),1);
+                    }
+                    if (!bike.hasTurned && p.lat() > eY - x) {
+                        bike.angle -= 82*Math.PI/180;
+                        bike.hasTurned = true;
+                    }
+                }
+                if (south) {bike.fillColor = 'green';bike.strokeColor = 'green';}
+
+
+                if ($.inArray(bike, activeBikes) == -1) bike.setMap(null);
+
+                bike.setCenter(new google.maps.LatLng(g,m));
+                bike.setRadius(bike.radius);
+
+                });
+                ticks++;
+        }, 2);
+    }
+
+    </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDD4D0sdKpinsipvNkqe1UVGgMb7GmNqJ8&callback=initMap"></script>
 
 </body>
