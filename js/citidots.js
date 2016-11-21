@@ -7,7 +7,7 @@ $.getJSON(filename, function(json) {
 function initMap() {
     var map = new google.maps.Map(document.getElementById('map'), {
         zoom: 14,
-        center: {lat: 40.726517, lng: -73.976786},
+        center: {lat: 40.719517, lng: -73.982786},
         mapTypeId: 'terrain'
     });
 
