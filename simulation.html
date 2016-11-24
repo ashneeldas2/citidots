@@ -35,14 +35,45 @@
 
     function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 13,
-            center: {lat: 40.719517, lng: -73.982786},
+            zoom: 14,
+            center: {lat: 40.738517, lng: -73.982786},
             mapTypeId: 'terrain'
         });
 
         var activeBikes = [];
         var ticks = 0;
+        var nycAngle = 29 * (Math.PI / 180);
 
+        function debug(bikeid){
+            var a = new google.maps.Circle({
+                strokeColor: '#1C68A5',//'#39A2E1',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#1C68A5',
+                fillOpacity: 1,
+                map: map,
+                center: {lat: bikes[bikeid].startLoc[0], lng: bikes[bikeid].startLoc[1]},
+                radius: 20,
+            });
+            var b = new google.maps.Circle({
+                strokeColor: '#1C68A5',//'#39A2E1',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#1C68A5',
+                fillOpacity: 1,
+                map: map,
+                center: {lat: bikes[bikeid].endLoc[0], lng: bikes[bikeid].endLoc[1]},
+                radius: 20,
+            });
+            console.log(b.center.lat(),b.center.lng());
+        }
+
+        function whichDirection(bike){
+            var x = bike.endLoc['lng'];
+            var y = bike.endLoc['lat'];
+            var newX = x * Math.cos(nycAngle) + y * Math.sin(nycAngle);
+            var newY = -x * Math.sin(nycAngle) + y * Math.cos(nycAngle);
+        }
         window.setInterval(function(){
 
             for (var bikeid in bikes){
@@ -56,15 +87,12 @@
                         map: map,
                         center: {lat: bikes[bikeid].startLoc[0], lng: bikes[bikeid].startLoc[1]},
                         radius: 20,
-                        bikeid: bikeid,
                         startLoc: {lat: bikes[bikeid].startLoc[0], lng: bikes[bikeid].startLoc[1]},
                         endLoc: {lat: bikes[bikeid].endLoc[0], lng: bikes[bikeid].endLoc[1]},
-                        angle: 29*(Math.PI / 180),
+                        angle: nycAngle,
+                        bikeid: bikeid,
                         v: 0.0001,
                         hasTurned: false,
-                        atEnd: function(){
-                            return Math.abs(this.center.lng() - this.endLoc['lng']) < 0.0001 && Math.abs(this.center.lat() - this.endLoc['lat']) < 0.0001;
-                        },
                     }));
                 }
             }
@@ -75,33 +103,25 @@
                 var sY = bike.startLoc['lat'];
                 var eX = bike.endLoc['lng'];
                 var eY = bike.endLoc['lat'];
-                bike.angle = Math.PI/2 - Math.atan((eY-sY)/(eX-sX));
 
                 var p = bike.getCenter();
                 var m = p.lng() + bike.v*(Math.sin(bike.angle));
                 var g = p.lat() + bike.v*(Math.cos(bike.angle));
 
-                var north = eY > sY;
-                var south = !north;
-                var east = eX > sX;
-                var west = !east;
+                // inverse calculations due to the x-axis' pointing north
 
-                if (bike.atEnd()) activeBikes.splice(activeBikes.indexOf(bike),1);
-                if ($.inArray(bike, activeBikes) == -1) bike.setMap(null);
+                var eNX =
 
-                /*
-                var d = Math.sqrt(Math.pow((eX-sX),2) + Math.pow((eY-sY), 2));
+                var riseAngle = Math.atan((eX-sX)/(eY-sY)) - nycAngle;
+                var north = Math.cos(riseAngle) >= 0;
+                var east = Math.sin(riseAngle) >= 0;
 
-
-
-                // subtracts turning point and starting point's y-distance from ending point and starting point's y-distance
-                var x = d * ( Math.sin(Math.atan((eY-sY)/(eX-sX))) - Math.sin( Math.PI/2 - bike.angle ));
-
-
+                var totalDistance = Math.sqrt(Math.pow((eX-sX),2) + Math.pow((eY-sY), 2));
+                var distanceTravelled = Math.sqrt(Math.pow(bike.startLoc['lat']-p.lat(),2) + Math.pow(bike.startLoc['lng']-p.lng(),2));
 
                 if (north && east) {
-                    if (!bike.hasTurned && p.lat() > eY + x) {
-                        bike.angle += 80*Math.PI/180;
+                    if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(riseAngle)) {
+                        bike.angle += Math.PI / 2;
                         bike.hasTurned = true;
                     }
                     if (bike.hasTurned && p.lat() < eY) {
@@ -109,37 +129,21 @@
                     }
                 }
 
-                if (north && west) {
-                    if (!bike.hasTurned && p.lat() > eY - x) {
-                        bike.angle -= 80*Math.PI/180;
-                        bike.hasTurned = true;
-                    }
-                    if (bike.hasTurned && p.lng() < eX) {
-                        activeBikes.splice(activeBikes.indexOf(bike),1);
-                    }
-                }
-
-                if (south && east) {
-                    bike.angle = 29*Math.PI/180 + Math.PI;
-                    if (!bike.hasTurned && p.lat() < eY + x) {
-                        bike.angle -= 80*Math.PI/180;
-                        bike.hasTurned = true;
-                    }
-                    if (bike.hasTurned && p.lat() < eY) {
-                        activeBikes.splice(activeBikes.indexOf(bike),1);
-                    }
-                }
-
-                if (south && west) {
-                    bike.angle = 29*Math.PI/180 + Math.PI;
-                    if (!bike.hasTurned && p.lat() < eY - x) {
-                        bike.angle += 80*Math.PI/180;
+                /*if (north && !east) {
+                    if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(riseAngle)) {
+                        bike.angle -= Math.PI / 2;
                         bike.hasTurned = true;
                     }
                     if (bike.hasTurned && p.lat() > eY) {
                         activeBikes.splice(activeBikes.indexOf(bike),1);
                     }
                 }*/
+
+                else {activeBikes.splice(activeBikes.indexOf(bike),1);}
+
+
+
+                if ($.inArray(bike, activeBikes) == -1) bike.setMap(null);
 
                 bike.setCenter(new google.maps.LatLng(g,m));
                 bike.setRadius(bike.radius);
