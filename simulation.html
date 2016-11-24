@@ -36,7 +36,7 @@
     function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 14,
-            center: {lat: 40.738517, lng: -73.982786},
+            center: {lat: 40.715517, lng: -73.982786},
             mapTypeId: 'terrain'
         });
 
@@ -68,12 +68,18 @@
             console.log(b.center.lat(),b.center.lng());
         }
 
-        function whichDirection(bike){
-            var x = bike.endLoc['lng'];
-            var y = bike.endLoc['lat'];
-            var newX = x * Math.cos(nycAngle) + y * Math.sin(nycAngle);
-            var newY = -x * Math.sin(nycAngle) + y * Math.cos(nycAngle);
+        function whichDirection(bike) {
+            var x = bike.endLoc[1],
+                y = bike.endLoc[0],
+                cX = bike.startLoc[1],
+                cY = bike.startLoc[0];
+            var cos = Math.cos(nycAngle),
+                sin = Math.sin(nycAngle),
+                nx = (x - cX) * cos + (y - cY) * sin + cX;
+                ny = -(x - cX) * sin + (y - cY) * cos + cY;
+            return [nx, ny];
         }
+
         window.setInterval(function(){
 
             for (var bikeid in bikes){
@@ -99,49 +105,36 @@
 
             activeBikes.forEach(function(bike) {
 
-                var sX = bike.startLoc['lng'];
-                var sY = bike.startLoc['lat'];
-                var eX = bike.endLoc['lng'];
-                var eY = bike.endLoc['lat'];
+                var sX = bike.startLoc['lng'],
+                    sY = bike.startLoc['lat'],
+                    eX = bike.endLoc['lng'],
+                    eY = bike.endLoc['lat'];
 
                 var p = bike.getCenter();
                 var m = p.lng() + bike.v*(Math.sin(bike.angle));
                 var g = p.lat() + bike.v*(Math.cos(bike.angle));
 
-                // inverse calculations due to the x-axis' pointing north
+                // rotate end point to accomodate the Manhattan coordinate plane
+                var newEndX = rotate(sX,sY,eX,eY,-nycAngle)[0];
+                var newEndY = rotate(sX,sY,eX,eY,-nycAngle)[1];
+                var north = newEndY > sY;
+                var east = newEndX < sX;
 
-                var eNX =
-
-                var riseAngle = Math.atan((eX-sX)/(eY-sY)) - nycAngle;
-                var north = Math.cos(riseAngle) >= 0;
-                var east = Math.sin(riseAngle) >= 0;
-
+                var travelAngle = Math.atan((eX-sX)/(eY-sY)); // inverse due to Manhattan coordinate plane
                 var totalDistance = Math.sqrt(Math.pow((eX-sX),2) + Math.pow((eY-sY), 2));
                 var distanceTravelled = Math.sqrt(Math.pow(bike.startLoc['lat']-p.lat(),2) + Math.pow(bike.startLoc['lng']-p.lng(),2));
 
-                if (north && east) {
-                    if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(riseAngle)) {
-                        bike.angle += Math.PI / 2;
-                        bike.hasTurned = true;
-                    }
-                    if (bike.hasTurned && p.lat() < eY) {
-                        activeBikes.splice(activeBikes.indexOf(bike),1);
-                    }
-                }
-
-                /*if (north && !east) {
-                    if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(riseAngle)) {
+                if (north && !east) {
+                    if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(travelAngle)) {
                         bike.angle -= Math.PI / 2;
                         bike.hasTurned = true;
                     }
                     if (bike.hasTurned && p.lat() > eY) {
                         activeBikes.splice(activeBikes.indexOf(bike),1);
                     }
-                }*/
+                }
 
                 else {activeBikes.splice(activeBikes.indexOf(bike),1);}
-
-
 
                 if ($.inArray(bike, activeBikes) == -1) bike.setMap(null);
 
