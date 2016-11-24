@@ -37,7 +37,7 @@
     function initMap() {
 
         var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 12,
+            zoom: 13,
             center: {lat: 40.756809, lng:-73.967129},
             mapTypeId: 'terrain'
         });
@@ -84,7 +84,7 @@
         var move = window.setInterval(function(){
             document.getElementById("ticks").innerHTML = ticks;
             for (var bikeid in bikes){
-                if (bikes[bikeid].starttime == ticks){
+                if (bikes[bikeid].starttime == ticks && bikeid=="18779"){
                     activeBikes.push( new google.maps.Circle({
                         strokeColor: '#1C68A5',//'#39A2E1',
                         strokeOpacity: 0.8,
@@ -120,6 +120,7 @@
                 var g = p.lat() + bike.v*(Math.cos(bike.angle));
 
                 var travelAngle = Math.atan((eX-sX)/(eY-sY)) - nycAngle; // inverse due to Manhattan coordinate plane
+                console.log(travelAngle+nycAngle);
                 var totalDistance = Math.sqrt(Math.pow((eX-sX),2) + Math.pow((eY-sY), 2));
                 var distanceTravelled = Math.sqrt(Math.pow(bike.startLoc['lat']-p.lat(),2) + Math.pow(bike.startLoc['lng']-p.lng(),2));
 
@@ -138,6 +139,7 @@
                 // northwest
                 else if (bike.direction[0] && !bike.direction[1]) {
                     if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(travelAngle)) {
+
                         bike.angle = Math.atan((eX-p.lng())/(eY-p.lat()));
                         bike.hasTurned = true;
                     }
