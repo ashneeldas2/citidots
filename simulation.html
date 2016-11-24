@@ -21,7 +21,7 @@
 </head>
 
 <body>
-
+    <p id="ticks"></p>
     <div id="map"></div>
 
     <script src="js/jquery-3.1.1.min.js"></script>
@@ -34,54 +34,34 @@
 
 
     function initMap() {
+
         var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 14,
-            center: {lat: 40.715517, lng: -73.982786},
+            zoom: 12,
+            center: {lat: 40.756809, lng:-73.967129},
+
+
             mapTypeId: 'terrain'
         });
 
         var activeBikes = [];
-        var ticks = 0;
         var nycAngle = 29 * (Math.PI / 180);
-
-        function debug(bikeid){
-            var a = new google.maps.Circle({
-                strokeColor: '#1C68A5',//'#39A2E1',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: '#1C68A5',
-                fillOpacity: 1,
-                map: map,
-                center: {lat: bikes[bikeid].startLoc[0], lng: bikes[bikeid].startLoc[1]},
-                radius: 20,
-            });
-            var b = new google.maps.Circle({
-                strokeColor: '#1C68A5',//'#39A2E1',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                fillColor: '#1C68A5',
-                fillOpacity: 1,
-                map: map,
-                center: {lat: bikes[bikeid].endLoc[0], lng: bikes[bikeid].endLoc[1]},
-                radius: 20,
-            });
-            console.log(b.center.lat(),b.center.lng());
-        }
 
         function whichDirection(bike) {
             var x = bike.endLoc[1],
                 y = bike.endLoc[0],
                 cX = bike.startLoc[1],
                 cY = bike.startLoc[0];
+            // rotate point to compare in Manhattan plane
             var cos = Math.cos(nycAngle),
                 sin = Math.sin(nycAngle),
-                nx = (x - cX) * cos + (y - cY) * sin + cX;
-                ny = -(x - cX) * sin + (y - cY) * cos + cY;
-            return [nx, ny];
+                nx = (x - cX) * cos - (y - cY) * sin + cX;
+                ny = (x - cX) * sin + (y - cY) * cos + cY;
+            return [ny > cY, nx > cX];
         }
 
+        var ticks = 0;
         window.setInterval(function(){
-
+            document.getElementById("ticks").innerHTML = ticks;
             for (var bikeid in bikes){
                 if (bikes[bikeid].starttime == ticks){
                     activeBikes.push( new google.maps.Circle({
@@ -99,12 +79,12 @@
                         bikeid: bikeid,
                         v: 0.0001,
                         hasTurned: false,
+                        direction: whichDirection(bikes[bikeid]), // [ isNorth, isEast ]
                     }));
                 }
             }
 
             activeBikes.forEach(function(bike) {
-
                 var sX = bike.startLoc['lng'],
                     sY = bike.startLoc['lat'],
                     eX = bike.endLoc['lng'],
@@ -114,17 +94,23 @@
                 var m = p.lng() + bike.v*(Math.sin(bike.angle));
                 var g = p.lat() + bike.v*(Math.cos(bike.angle));
 
-                // rotate end point to accomodate the Manhattan coordinate plane
-                var newEndX = rotate(sX,sY,eX,eY,-nycAngle)[0];
-                var newEndY = rotate(sX,sY,eX,eY,-nycAngle)[1];
-                var north = newEndY > sY;
-                var east = newEndX < sX;
-
-                var travelAngle = Math.atan((eX-sX)/(eY-sY)); // inverse due to Manhattan coordinate plane
+                var travelAngle = Math.atan((eX-sX)/(eY-sY)) - nycAngle; // inverse due to Manhattan coordinate plane
                 var totalDistance = Math.sqrt(Math.pow((eX-sX),2) + Math.pow((eY-sY), 2));
                 var distanceTravelled = Math.sqrt(Math.pow(bike.startLoc['lat']-p.lat(),2) + Math.pow(bike.startLoc['lng']-p.lng(),2));
 
-                if (north && !east) {
+                // northeast
+                if (bike.direction[0] && bike.direction[1]) {
+                    if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(travelAngle)) {
+                        bike.angle += Math.PI / 2;
+                        bike.hasTurned = true;
+                    }
+                    if (bike.hasTurned && p.lat() < eY) {
+                        activeBikes.splice(activeBikes.indexOf(bike),1);
+                    }
+                }
+
+                // northwest
+                else if (bike.direction[0] && !bike.direction[1]) {
                     if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(travelAngle)) {
                         bike.angle -= Math.PI / 2;
                         bike.hasTurned = true;
@@ -134,8 +120,7 @@
                     }
                 }
 
-                else {activeBikes.splice(activeBikes.indexOf(bike),1);}
-
+                else {activeBikes.splice(activeBikes.indexOf(bike),1)};
                 if ($.inArray(bike, activeBikes) == -1) bike.setMap(null);
 
                 bike.setCenter(new google.maps.LatLng(g,m));
