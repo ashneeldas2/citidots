@@ -22,7 +22,6 @@
 
 <body>
     <p id="ticks"></p>
-    <button onclick="stop()">stop</button>
     <div id="map"></div>
 
     <script src="js/jquery-3.1.1.min.js"></script>
@@ -39,7 +38,7 @@
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 13,
             center: {lat: 40.756809, lng:-73.967129},
-            mapTypeId: 'terrain'
+            mapTypeId: 'terrain',
         });
 
         var activeBikes = [];
@@ -76,12 +75,12 @@
                 fillColor: '#1C68A5',
                 fillOpacity: 1,
                 map: map,
-                center: {lat: bike.endLoc['lat'], lng: bike.endLoc['lng']},
+                center: {lat: bike.endLoc['lat'], lng: bike.endLoc['lng']+0.005},
                 radius: 20,
             });
         }
-        var ticks = 14700;
-        var move = window.setInterval(function(){
+
+        window.setInterval(function(){
             document.getElementById("ticks").innerHTML = ticks;
             for (var bikeid in bikes){
                 if (bikes[bikeid].starttime == ticks){
@@ -95,7 +94,7 @@
                         center: {lat: bikes[bikeid].startLoc[0], lng: bikes[bikeid].startLoc[1]},
                         radius: 20,
                         startLoc: {lat: bikes[bikeid].startLoc[0], lng: bikes[bikeid].startLoc[1]},
-                        endLoc: {lat: bikes[bikeid].endLoc[0], lng: bikes[bikeid].endLoc[1]},
+                        endLoc: {lat: bikes[bikeid].endLoc[0], lng: bikes[bikeid].endLoc[1]+0.005},
                         angle: nycAngle,
                         bikeid: bikeid,
                         v: 0.0001,
@@ -109,7 +108,7 @@
             }
 
             activeBikes.forEach(function(bike) {
-                if (!bike.debugModeOn) { debug(bike); bike.debugModeOn = true;}
+                //if (!bike.debugModeOn) { debug(bike); bike.debugModeOn = true;}
                 var sX = bike.startLoc['lng'],
                     sY = bike.startLoc['lat'],
                     eX = bike.endLoc['lng'],
@@ -123,7 +122,6 @@
                 var totalDistance = Math.sqrt(Math.pow((eX-sX),2) + Math.pow((eY-sY), 2));
                 var distanceTravelled = Math.sqrt(Math.pow(bike.startLoc['lat']-p.lat(),2) + Math.pow(bike.startLoc['lng']-p.lng(),2));
 
-                // northeast
                 if (bike.direction[0] && bike.direction[1]) {
                     if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(travelAngle)) {
                         bike.angle = Math.atan((eX-p.lng())/(eY-p.lat())) - Math.PI;
@@ -137,7 +135,6 @@
                 // northwest
                 else if (bike.direction[0] && !bike.direction[1]) {
                     if (!bike.hasTurned && distanceTravelled > totalDistance * Math.cos(travelAngle)) {
-
                         bike.angle = Math.atan((eX-p.lng())/(eY-p.lat()));
                         bike.hasTurned = true;
                     }
@@ -148,11 +145,8 @@
 
                 else {activeBikes.splice(activeBikes.indexOf(bike),1)};
                 if ($.inArray(bike, activeBikes) == -1) {
-                    if (bike.debugModeOn) {
-                        bike.debugA.setMap(null);
-                        bike.debugB.setMap(null);
-                    }
-                    bike.setMap(null)
+    
+                    bike.setMap(null);
                 }
 
                 bike.setCenter(new google.maps.LatLng(g,m));
