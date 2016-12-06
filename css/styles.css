@@ -1,0 +1,208 @@
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 300;
+  font-style: normal;
+  src: url(assets/fonts/AvenirNext-UltraLight.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 300;
+  font-style: italic;
+  src: url(assets/fonts/AvenirNext-UltraLightItalic.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 400;
+  font-style: normal;
+  src: url(assets/fonts/AvenirNext-Regular.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 400;
+  font-style: italic;
+  src: url(assets/fonts/AvenirNext-Italic.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 500;
+  font-style: normal;
+  src: url(assets/fonts/AvenirNext-Medium.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 500;
+  font-style: italic;
+  src: url(assets/fonts/AvenirNext-MediumItalic.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 600;
+  font-style: normal;
+  src: url(assets/fonts/AvenirNext-DemiBold.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 600;
+  font-style: italic;
+  src: url(assets/fonts/AvenirNext-DemiBoldItalic.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 700;
+  font-style: normal;
+  src: url(assets/fonts/AvenirNext-Bold.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 700;
+  font-style: italic;
+  src: url(assets/fonts/AvenirNext-BoldItalic.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 800;
+  font-style: normal;
+  src: url(assets/fonts/AvenirNext-Heavy.ttf);
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  font-weight: 800;
+  font-style: italic;
+  src: url(assets/fonts/AvenirNext-HeavyItalic.ttf);
+}
+
+body {
+  line-height: 1.6;
+  color: #444;
+  margin: 0;
+  font-family: 'Avenir Next', sans-serif;
+}
+
+h1, h2, h3 {
+  line-height: 1.2;
+}
+
+p {
+  margin: 1em 0;
+}
+
+.center {
+  margin: 0 auto;
+  max-width: 40.625em;
+}
+
+@media only screen and (max-device-width: 480px) {
+  .center {
+    max-width: none;
+    padding: 0 3em;
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.table {
+  display: table;
+}
+
+.row {
+  display: table-row;
+}
+
+.cell {
+  display: table-cell;
+  padding: 2px 4px;
+}
+
+ul {
+  padding: 0;
+}
+
+a.link {
+  color: #4f7496;
+  -webkit-transition: .2s;
+  transition: .2s;
+  text-decoration: none;
+  border-bottom: solid 1px transparent;
+}
+
+a.link:hover {
+  color: #3d5a75;
+  border-bottom: solid 1px #4f7496;
+}
+
+section {
+  padding-left: .625em;
+  padding-right: .625em;
+}
+
+#header {
+  padding-top: 4em;
+}
+
+#header h1 {
+  font-weight: 400;
+  font-size: 4em;
+  margin-bottom: .4em;
+  color: #0D47A1;
+}
+
+#social {
+  margin-top: -.5em;
+}
+
+@media only screen and (max-device-width: 480px) {
+  #social {
+    font-size: 2em;
+  }
+}
+
+#social li {
+  display: inline-block;
+  list-style: none;
+  margin: 2px 0;
+}
+
+#social a {
+  text-decoration: none;
+  color: white;
+  background-color: #444;
+  padding: 2px 5px;
+  -webkit-transition: .2s;
+  transition: .2s;
+}
+
+#social a:hover {
+  background-color: #777777;
+}
+
+#footer a {
+  color: #4f7496;
+  text-decoration: none;
+  -webkit-transition: .2s;
+  transition: .2s;
+}
+
+#footer a i {
+  color: #1DB954;
+}
+
+#footer a:hover {
+  color: #1DB954;
+}
