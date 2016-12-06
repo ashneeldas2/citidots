@@ -1,7 +1,7 @@
 # citidots
 
 ## Synopsis
-CitiDots is a data visualization project created by Ashneel Das and Jason Kao. It displays the movement of bikes from NYC's bike sharing system, CitiBike. Based on borrow/return timestamps and location, it predictes the path of a dot (representative of one bike) and simulates actual bike movement. Below is a preview of our project dated November 23, 2016.  
+CitiDots is a data visualization project created by Ashneel Das and Jason Kao. It displays the movement of bikes from NYC's bike sharing system, CitiBike. Based on borrow/return timestamps and location, it predicts the path of a bike (representated by a single blue dot) and simulates actual movement. Below is a preview of our project dated November 23, 2016.  
 
 <img src="https://github.com/ashneeldas2/citidots/blob/master/records/record-112316.gif">  
 
