@@ -36,7 +36,7 @@
 
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 14,
-            center: {lat: 40.726809, lng:-74.000129},
+            center: {lat: 40.746809, lng:-73.984129},
             mapTypeId: 'terrain'
         });
 
@@ -58,7 +58,7 @@
 
         var ticks = 0;
         window.setInterval(function(){
-            document.getElementById("ticks").innerHTML = ticks + ' s';
+            document.getElementById("ticks").innerHTML = ticks+15000+' s';
             for (var bikeid in bikes){
                 if (bikes[bikeid].starttime == ticks){
                     activeBikes.push( new google.maps.Circle({
