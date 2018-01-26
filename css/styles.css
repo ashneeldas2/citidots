@@ -206,3 +206,13 @@ section {
 #footer a:hover {
   color: #1DB954;
 }
+
+#ticks {
+   transform: translate(-10%,-830%);
+   color: #000;
+   font-family: Avenir Next;
+   font-size: 50px;
+}
+
+
+

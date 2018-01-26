@@ -5,11 +5,11 @@
 <head>
 
     <title>CitiDots</title>
+    <link rel="stylesheet" href="./css/styles.css">
 
     <style>
     #map {
         height: 100%;
-        width: 50%;
     }
     html, body {
         height: 100%;
@@ -36,7 +36,7 @@
 
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 14,
-            center: {lat: 40.746809, lng:-73.984129},
+            center: {lat: 40.731, lng:-73.984129},
             mapTypeId: 'terrain'
         });
 
@@ -141,6 +141,6 @@
 
     </script>
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDD4D0sdKpinsipvNkqe1UVGgMb7GmNqJ8&callback=initMap"></script>
-    <center><p id="ticks" style="transform:translate(-40%,-1000%);color:#000;font-size:50px;"></p>
+    <center><p id="ticks"></p>
 </body>
 </html>
